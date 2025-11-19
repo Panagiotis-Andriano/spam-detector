@@ -2,14 +2,22 @@ package com.panagiotis.spam_detector.service;
 
 import java.util.regex.Pattern;
 import java.util.*;
-
 import org.springframework.stereotype.Service;
+import com.panagiotis.spam_detector.entity.SpamCheckHistory;
+import com.panagiotis.spam_detector.repository.SpamCheckHistoryRepository;
+
+/**
+ * Κύριο service class για spam detection
+ */
 
 @Service
 public class MlSpamService {
     private final Map<String, Double> featureWeights;
+    private final SpamCheckHistoryRepository historyRepository;
 
-    public MlSpamService() {
+    public MlSpamService(SpamCheckHistoryRepository historyRepository) {
+        this.historyRepository = historyRepository;
+
         featureWeights = new HashMap<>();
         featureWeights.put("spam_keyword_count", 0.20);
         featureWeights.put("url_present", 0.15);
@@ -22,6 +30,13 @@ public class MlSpamService {
         featureWeights.put("suspicious_patterns", 0.15);
         featureWeights.put("money_mentions", 0.10);
         featureWeights.put("spam_ratio", 0.18);
+    }
+
+    //Αποθήκευση ενός έλεγχου spam στο ιστορικό της βάσης δεδομένων
+    public void saveToHistory(String message, boolean isSpam, double confidence, String language) {
+        SpamCheckHistory history = new SpamCheckHistory(message, isSpam, confidence, language);
+
+        historyRepository.save(history);
     }
 
     public Map<String, Object> extractFeatures(String message) {
@@ -39,7 +54,7 @@ public class MlSpamService {
         features.put("free_mentions", containsFreeMentions(lowerMessage) ? 1.0 : 0.0);
         features.put("suspicious_patterns", calculateSuspiciousPatterns(message));
         features.put("money_mentions", containsMoneyMentions(lowerMessage) ? 1.0 : 0.0);
-        features.put("spam_ration", calculateSpamRatio(message, spamKeywords));
+        features.put("spam_ratio", calculateSpamRatio(message, spamKeywords));
 
         return features;
     }

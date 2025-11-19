@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spam Detector</title>
     <style>
+        /* ΒΑΣΙΚΑ STYLES */
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
@@ -35,6 +36,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            margin-right: 10px;
         }
         button:hover {
             background: #0056b3;
@@ -59,24 +61,254 @@
             margin-top: 15px;
             font-size: 14px;
         }
+
+        /* ΙΣΤΟΡΙΚΟ STYLES */
+        .history-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            text-align: center;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .history-item {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .spam-badge {
+            background: #f44336;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .ham-badge {
+            background: #4caf50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        /* FEEDBACK SYSTEM */
+        .feedback-panel {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .feedback-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .feedback-correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .feedback-incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .feedback-comment {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .feedback-stats {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .discrepancy-item {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
+    <!-- ΚΥΡΙΟ SPAM DETECTOR FORM -->
     <div class="container">
         <h1>Spam Detector</h1>
         <p>Ελέγξτε αν ένα μήνυμα είναι spam (Υποστηρίζει Ελληνικά & Αγγλικά)</p>
         
-        <textarea id="messageInput" placeholder="Γράψτε το μήνυμα εδώ...&#10;Π.χ.: Κέρδισε δωρεάν χρήματα τώρα!&#10;Π.χ.: Win free money now!!!"></textarea>
+        <textarea id="messageInput" placeholder="Γράψτε το μήνυμα εδώ...&#10;Π.χ.: Κέρδισε δωρεάν χρήματα τώρα!&#10;Π.χ.: Win free money now!!!">WIN NOW! !</textarea>
         
         <button onclick="checkSpam()">Ελέγχος για Spam</button>
         
         <div id="result" class="result"></div>
+
+        <!-- FEEDBACK PANEL -->
+        <div id="feedbackPanel" class="feedback-panel" style="display: none;">
+            <h3 style="margin-top: 0;">Βοηθήστε να βελτιώσουμε το σύστημα</h3>
+            <p style="margin-bottom: 10px;">Η ανάλυση ήταν σωστή;</p>
+            
+            <div class="feedback-buttons">
+                <button class="feedback-btn feedback-correct" onclick="submitFeedback(true)">
+                    Ναι, σωστή ανάλυση
+                </button>
+                <button class="feedback-btn feedback-incorrect" onclick="showFeedbackForm()">
+                    Όχι, λανθασμένη ανάλυση
+                </button>
+            </div>
+
+            <!-- Λεπτομερές feedback form -->
+            <div id="detailedFeedback" style="display: none;">
+                <p>Ποιο ήταν το σωστό αποτέλεσμα;</p>
+                <div class="feedback-buttons">
+                    <button class="feedback-btn feedback-correct" onclick="submitDetailedFeedback(false)">
+                        Το μήνυμα ήταν spam
+                    </button>
+                    <button class="feedback-btn feedback-incorrect" onclick="submitDetailedFeedback(true)">
+                        Το μήνυμα ήταν κανονικό
+                    </button>
+                </div>
+                <textarea 
+                    id="feedbackComment" 
+                    class="feedback-comment" 
+                    placeholder="Προαιρετικό σχόλιο... (π.χ. γιατί πιστεύετε ότι το σύστημα έκανε λάθος)"
+                    rows="3"
+                ></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ΙΣΤΟΡΙΚΟ ΕΛΕΓΧΩΝ -->
+    <div class="container" style="margin-top: 20px;">
+        <h2>Ιστορικό Ελέγχων</h2>
+        
+        <!-- Στατιστικά Πάνελ -->
+        <div class="history-stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div style="font-size: 24px; font-weight: bold;" id="totalChecks">0</div>
+                    <div>Σύνολο Ελέγχων</div>
+                </div>
+                <div class="stat-item">
+                    <div style="font-size: 24px; font-weight: bold;" id="spamCount">0</div>
+                    <div>Spam Εντοπίστηκαν</div>
+                </div>
+                <div class="stat-item">
+                    <div style="font-size: 24px; font-weight: bold;" id="nonSpamCount">0</div>
+                    <div>Κανονικά Μηνύματα</div>
+                </div>
+                <div class="stat-item">
+                    <div style="font-size: 24px; font-weight: bold;" id="spamPercentage">0%</div>
+                    <div>Ποσοστό Spam</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEEDBACK STATS -->
+        <div class="feedback-stats">
+            <h3 style="margin-top: 0;">Στατιστικά Ακρίβειας</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div style="font-size: 20px; font-weight: bold;" id="totalFeedback">0</div>
+                    <div>Σύνολο Feedback</div>
+                </div>
+                <div class="stat-item">
+                    <div style="font-size: 20px; font-weight: bold;" id="accuracyRate">0%</div>
+                    <div>Ποσοστό Ακρίβειας</div>
+                </div>
+                <div class="stat-item">
+                    <div style="font-size: 20px; font-weight: bold;" id="discrepanciesCount">0</div>
+                    <div>Διαφορές Απόψεων</div>
+                </div>
+            </div>
+            <button onclick="loadFeedbackStats()" style="margin-top: 10px; background: #6c757d;">Refresh Stats</button>
+            <button onclick="showDiscrepancies()" style="margin-top: 10px; background: #ffc107; color: black;">Εμφάνιση Διαφορών</button>
+        </div>
+
+        <!-- Controls -->
+        <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="loadHistory()">Φόρτωση Ιστορικού</button>
+            <button onclick="clearHistory()" style="background: #dc3545;">Καθαρισμός Ιστορικού</button>
+            <button onclick="toggleAutoRefresh()" style="background: #28a745;" id="autoRefreshBtn">Αυτόματο Refresh</button>
+        </div>
+
+        <!-- Αποτελέσματα Ιστορικού -->
+        <div id="historyResults">
+            <div class="loading">
+                <p>Φόρτωση ιστορικού...</p>
+            </div>
+        </div>
+
+        <!-- DISCREPANCIES SECTION -->
+        <div id="discrepanciessection" style="display: none; margin-top: 20px;">
+            <h3>Διαφορές Απόψεων Συστήματος - Χρηστών</h3>
+            <div id="discrepanciesResults"></div>
+        </div>
     </div>
 
     <script>
+        // GLOBAL VARIABLES
+        let autoRefreshInterval = null;
+        let currentSpamCheckId = null;
+        let currentSpamResult = null;
+
+        /**
+         * ΚΥΡΙΑ ΜΕΘΟΔΟΣ: Ελέγχει αν ένα μήνυμα είναι spam.
+         */
         async function checkSpam() {
             const message = document.getElementById('messageInput').value.trim();
             const resultDiv = document.getElementById('result');
+            const feedbackPanel = document.getElementById('feedbackPanel');
             
             if (!message) {
                 alert('Παρακαλώ εισάγετε ένα μήνυμα');
@@ -84,6 +316,13 @@
             }
 
             try {
+                resultDiv.innerHTML = '<div class="loading">Ελέγχος σε εξέλιξη...</div>';
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result';
+                feedbackPanel.style.display = 'none';
+
+                console.log('Αποστολή request...');
+
                 const response = await fetch('/api/detect', {
                     method: 'POST',
                     headers: {
@@ -92,35 +331,339 @@
                     body: JSON.stringify({ message: message })
                 });
 
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+                }
+
                 const data = await response.json();
+                console.log('Data received:', data);
                 
-                // Display results
-                resultDiv.className = 'result ' + (data.isSpam ? 'spam' : 'not-spam');
+                currentSpamResult = data;
+                displaySpamResult(data);
+                
+                setTimeout(() => {
+                    feedbackPanel.style.display = 'block';
+                    document.getElementById('detailedFeedback').style.display = 'none';
+                }, 500);
+
+                setTimeout(loadHistory, 500);
+
+            } catch (error) {
+                console.error('Error details:', error);
                 resultDiv.innerHTML = `
-                    <strong>${data.isSpam ? 'SPAM ΒΡΕΘΗΚΕ!' : 'ΚΑΝΟΝΙΚΟ ΜΗΝΥΜΑ'}</strong>
-                    <p>Βαθμός εμπιστοσύνης: ${(data.confidence * 100).toFixed(1)}%</p>
-                    <p>Γλώσσα: ${data.language === 'greek' ? 'Ελληνικά' : 'Αγγλικά'}</p>
-                    <div class="features">
-                        <strong>Αναλυτικά:</strong><br>
-                        - Πιθανότητα ML: ${(data.mlProbability * 100).toFixed(1)}%<br>
-                        - Λέξεις spam: ${(data.features.spam_keyword_count * 100).toFixed(1)}%<br>
-                        - URL: ${data.features.url_present ? 'ΝΑΙ' : 'ΟΧΙ'}<br>
-                        - Κεφαλαία: ${(data.features.excessive_caps * 100).toFixed(1)}%
+                    <div class="error">
+                        <strong>Σφάλμα:</strong> Δεν ήταν δυνατός ο έλεγχος. Παρακαλώ δοκιμάστε ξανά.
+                        <br><small>Λεπτομέρεια: ${error.message}</small>
                     </div>
                 `;
                 resultDiv.style.display = 'block';
-
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Σφάλμα κατά τον έλεγχο. Δοκιμάστε ξανά.');
             }
         }
 
-        // Allow Enter key to trigger check
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                checkSpam();
+        /**
+         * Εμφανίζει τα αποτελέσματα spam detection στο UI.
+         */
+        function displaySpamResult(data) {
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.className = 'result ' + (data.isSpam ? 'spam' : 'not-spam');
+            resultDiv.innerHTML = `
+                <strong>${data.isSpam ? 'SPAM ΒΡΕΘΗΚΕ!' : 'ΚΑΝΟΝΙΚΟ ΜΗΝΥΜΑ'}</strong>
+                <p><strong>Βαθμός εμπιστοσύνης:</strong> ${(data.confidence * 100).toFixed(1)}%</p>
+                <p><strong>Γλώσσα:</strong> ${data.language === 'greek' ? 'Ελληνικά' : 'Αγγλικά'}</p>
+                <div class="features">
+                    <strong>Αναλυτικά:</strong><br>
+                    - Πιθανότητα ML: ${(data.mlProbability * 100).toFixed(1)}%<br>
+                    - Λέξεις spam: ${(data.features.spam_keyword_count * 100).toFixed(1)}%<br>
+                    - URL: ${data.features.url_present ? 'ΝΑΙ' : 'ΟΧΙ'}<br>
+                    - Κεφαλαία: ${(data.features.excessive_caps * 100).toFixed(1)}%<br>
+                    - Επείγον: ${data.features.urgency_words ? 'ΝΑΙ' : 'ΟΧΙ'}
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        /**
+         * Υποβολή θετικού feedback.
+         */
+        async function submitFeedback(agreeWithSystem) {
+            if (!currentSpamResult) {
+                alert('Δεν υπάρχει αποτέλεσμα για feedback');
+                return;
             }
+
+            try {
+                const historyResponse = await fetch('/api/history');
+                const historyData = await historyResponse.json();
+                
+                if (historyData.history.length === 0) {
+                    throw new Error('Δεν βρέθηκε ιστορικό για feedback');
+                }
+
+                const latestCheck = historyData.history[0];
+                currentSpamCheckId = latestCheck.id;
+
+                const feedbackData = {
+                    spamCheckId: currentSpamCheckId,
+                    userSaysIsSpam: agreeWithSystem ? currentSpamResult.isSpam : !currentSpamResult.isSpam,
+                    systemSaysIsSpam: currentSpamResult.isSpam,
+                    userComment: '',
+                    messageLanguage: currentSpamResult.language,
+                    systemConfidence: currentSpamResult.confidence
+                };
+
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(feedbackData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Ευχαριστούμε για το feedback!');
+                    document.getElementById('feedbackPanel').style.display = 'none';
+                    loadFeedbackStats();
+                } else {
+                    alert('Σφάλμα κατά την αποθήκευση του feedback: ' + result.message);
+                }
+
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                alert('Σφάλμα κατά την υποβολή feedback.');
+            }
+        }
+
+        /**
+         * Εμφανίζει το λεπτομερές feedback form.
+         */
+        function showFeedbackForm() {
+            document.getElementById('detailedFeedback').style.display = 'block';
+        }
+
+        /**
+         * Υποβολή λεπτομερούς feedback.
+         */
+        async function submitDetailedFeedback(userSaysIsSpam) {
+            if (!currentSpamResult) {
+                alert('Δεν υπάρχει αποτέλεσμα για feedback');
+                return;
+            }
+
+            try {
+                const historyResponse = await fetch('/api/history');
+                const historyData = await historyResponse.json();
+                
+                if (historyData.history.length === 0) {
+                    throw new Error('Δεν βρέθηκε ιστορικό για feedback');
+                }
+
+                const latestCheck = historyData.history[0];
+                currentSpamCheckId = latestCheck.id;
+
+                const userComment = document.getElementById('feedbackComment').value;
+
+                const feedbackData = {
+                    spamCheckId: currentSpamCheckId,
+                    userSaysIsSpam: userSaysIsSpam,
+                    systemSaysIsSpam: currentSpamResult.isSpam,
+                    userComment: userComment,
+                    messageLanguage: currentSpamResult.language,
+                    systemConfidence: currentSpamResult.confidence
+                };
+
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(feedbackData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Ευχαριστούμε για το feedback! Η γνώμη σας βοηθά στη βελτίωση του συστήματος.');
+                    document.getElementById('feedbackPanel').style.display = 'none';
+                    loadFeedbackStats();
+                } else {
+                    alert('Σφάλμα κατά την αποθήκευση του feedback: ' + result.message);
+                }
+
+            } catch (error) {
+                console.error('Error submitting detailed feedback:', error);
+                alert('Σφάλμα κατά την υποβολή feedback.');
+            }
+        }
+
+        /**
+         * Φορτώνει τα στατιστικά feedback.
+         */
+        async function loadFeedbackStats() {
+            try {
+                const response = await fetch('/api/feedback/stats');
+                const data = await response.json();
+                
+                document.getElementById('totalFeedback').textContent = data.totalFeedback;
+                document.getElementById('accuracyRate').textContent = data.accuracyRate.toFixed(1) + '%';
+                document.getElementById('discrepanciesCount').textContent = data.totalDiscrepancies;
+                
+            } catch (error) {
+                console.error('Error loading feedback stats:', error);
+            }
+        }
+
+        /**
+         * Εμφανίζει τις διαφορές απόψεων.
+         */
+        async function showDiscrepancies() {
+            const section = document.getElementById('discrepanciessection');
+            const results = document.getElementById('discrepanciesResults');
+            
+            try {
+                results.innerHTML = '<div class="loading">Φόρτωση διαφορών...</div>';
+                section.style.display = 'block';
+
+                const response = await fetch('/api/feedback/discrepancies');
+                const data = await response.json();
+
+                if (data.totalDiscrepancies === 0) {
+                    results.innerHTML = '<p>Δεν υπάρχουν διαφορές απόψεων προς το παρόν.</p>';
+                    return;
+                }
+
+                let html = '';
+                data.discrepancies.forEach(item => {
+                    html += `
+                        <div class="discrepancy-item">
+                            <div><strong>ID Ελέγχου:</strong> ${item.spamCheckId}</div>
+                            <div><strong>Σύστημα:</strong> ${item.systemSaysIsSpam ? 'SPAM' : 'Κανονικό'} (${(item.systemConfidence * 100).toFixed(1)}%)</div>
+                            <div><strong>Χρήστης:</strong> ${item.userSaysIsSpam ? 'SPAM' : 'Κανονικό'}</div>
+                            <div><strong>Γλώσσα:</strong> ${item.messageLanguage === 'greek' ? 'Ελληνικά' : 'Αγγλικά'}</div>
+                            ${item.userComment ? `<div><strong>Σχόλιο:</strong> ${item.userComment}</div>` : ''}
+                            <div><small>${new Date(item.createdAt).toLocaleString('el-GR')}</small></div>
+                        </div>
+                    `;
+                });
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading discrepancies:', error);
+                results.innerHTML = '<div class="error">Σφάλμα φόρτωσης διαφορών.</div>';
+            }
+        }
+
+        /**
+         * Φορτώνει το ιστορικό ελέγχων.
+         */
+        async function loadHistory() {
+            const historyResults = document.getElementById('historyResults');
+            
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+                
+                updateStats(data);
+                displayHistory(data.history);
+                
+            } catch (error) {
+                console.error('Error loading history:', error);
+                historyResults.innerHTML = '<div class="error">Σφάλμα φόρτωσης ιστορικού.</div>';
+            }
+        }
+
+        /**
+         * Ενημερώνει τα στατιστικά.
+         */
+        function updateStats(data) {
+            document.getElementById('totalChecks').textContent = data.totalChecks;
+            document.getElementById('spamCount').textContent = data.spamCount;
+            document.getElementById('nonSpamCount').textContent = data.nonSpamCount;
+            
+            const spamPercentage = data.totalChecks > 0 ? (data.spamCount / data.totalChecks * 100).toFixed(1) : 0;
+            document.getElementById('spamPercentage').textContent = spamPercentage + '%';
+        }
+
+        /**
+         * Εμφανίζει το ιστορικό.
+         */
+        function displayHistory(history) {
+            const historyResults = document.getElementById('historyResults');
+            
+            if (history.length === 0) {
+                historyResults.innerHTML = '<p>Δεν υπάρχουν προηγούμενοι έλεγχοι.</p>';
+                return;
+            }
+
+            let html = '';
+            history.forEach(item => {
+                html += `
+                    <div class="history-item">
+                        <div class="history-header">
+                            <span class="${item.isSpam ? 'spam-badge' : 'ham-badge'}">
+                                ${item.isSpam ? 'SPAM' : 'ΚΑΝΟΝΙΚΟ'}
+                            </span>
+                            <small>${new Date(item.createdAt).toLocaleString('el-GR')}</small>
+                        </div>
+                        <p><strong>Μήνυμα:</strong> ${item.message.substring(0, 100)}${item.message.length > 100 ? '...' : ''}</p>
+                        <p><strong>Βαθμός εμπιστοσύνης:</strong> ${(item.confidence * 100).toFixed(1)}%</p>
+                        <p><strong>Γλώσσα:</strong> ${item.language === 'greek' ? 'Ελληνικά' : 'Αγγλικά'}</p>
+                    </div>
+                `;
+            });
+
+            historyResults.innerHTML = html;
+        }
+
+        /**
+         * Καθαρισμός ιστορικού.
+         */
+        async function clearHistory() {
+            if (!confirm('Είστε σίγουρος ότι θέλετε να διαγράψετε όλο το ιστορικό;')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/history', { method: 'DELETE' });
+                const result = await response.json();
+                
+                alert(`Διαγράφηκαν ${result.deletedRecords} εγγραφές`);
+                loadHistory();
+                
+            } catch (error) {
+                console.error('Error clearing history:', error);
+                alert('Σφάλμα κατά τον καθαρισμό του ιστορικού');
+            }
+        }
+
+        /**
+         * Εναλλαγή αυτόματου refresh.
+         */
+        function toggleAutoRefresh() {
+            const btn = document.getElementById('autoRefreshBtn');
+            
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                btn.textContent = 'Αυτόματο Refresh';
+                btn.style.background = '#28a745';
+            } else {
+                autoRefreshInterval = setInterval(loadHistory, 5000);
+                btn.textContent = 'Διακοπή Auto Refresh';
+                btn.style.background = '#dc3545';
+            }
+        }
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+            loadFeedbackStats();
         });
     </script>
 </body>
