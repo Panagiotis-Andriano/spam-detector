@@ -14,6 +14,8 @@
 -  **Αναλυτικά αποτελέσματα** με confidence scores
 -  **Feature extraction** (URLs, keywords, κεφαλαία, κλπ)
 -  **Ιστορικό ελέγχων** (με βάση δεδομένων H2)
+-  **Σύστημα Feedback** για βελτίωση του αλγορίθμου
+-  **Responsive design** για όλες τις συσκευές
 
 ## Τεχνολογίες
 
@@ -21,7 +23,7 @@
 - **Frontend:** HTML5, CSS3, JavaScript
 - **Database:** H2 (In-memory)
 - **Build Tool:** Maven
-- **Architecture:** MVC Pattern
+- **Architecture:** MVC Pattern, REST API
 
 ## Γρήγορη Εγκατάσταση
 
