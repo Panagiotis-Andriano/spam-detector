@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 import java.util.*;
 import org.springframework.stereotype.Service;
 import com.panagiotis.spam_detector.entity.SpamCheckHistory;
+import com.panagiotis.spam_detector.ml.SpamClassifier;
 import com.panagiotis.spam_detector.repository.SpamCheckHistoryRepository;
 
 /**
@@ -12,24 +13,12 @@ import com.panagiotis.spam_detector.repository.SpamCheckHistoryRepository;
 
 @Service
 public class MlSpamService {
-    private final Map<String, Double> featureWeights;
     private final SpamCheckHistoryRepository historyRepository;
+    private final SpamClassifier spamClassifier;
 
-    public MlSpamService(SpamCheckHistoryRepository historyRepository) {
+    public MlSpamService(SpamCheckHistoryRepository historyRepository, SpamClassifier spamClassifier) {
         this.historyRepository = historyRepository;
-
-        featureWeights = new HashMap<>();
-        featureWeights.put("spam_keyword_count", 0.20);
-        featureWeights.put("url_present", 0.15);
-        featureWeights.put("excessive_caps", 0.10);
-        featureWeights.put("multiple_exclamations", 0.08);
-        featureWeights.put("phone_pattern", 0.12);
-        featureWeights.put("urgency_words", 0.12);
-        featureWeights.put("short_length", 0.04);
-        featureWeights.put("free_mentions", 0.08);
-        featureWeights.put("suspicious_patterns", 0.15);
-        featureWeights.put("money_mentions", 0.10);
-        featureWeights.put("spam_ratio", 0.18);
+        this.spamClassifier = spamClassifier;
     }
 
     //Αποθήκευση ενός έλεγχου spam στο ιστορικό της βάσης δεδομένων
@@ -59,32 +48,8 @@ public class MlSpamService {
         return features;
     }
 
-    public double predictSpamProbability(Map<String, Object> features) {
-        double baseScore = 0.0;
-        double boostScore = 0.0;
-
-        for(Map.Entry<String, Object> entry : features.entrySet()) {
-            String feature = entry.getKey();
-            double value = (double) entry.getValue();
-            double weight = featureWeights.getOrDefault(feature, 0.0);
-            baseScore += value * weight;
-        }
-
-        if ((double) features.get("url_present") > 0.5 && (double) features.get("spam_keyword_count") > 0.6) {
-            boostScore += 0.3;
-        }
-
-        if ((double) features.get("excessive_caps") > 0.7 && (double) features.get("multiple_exclamations") > 0.5) {
-            boostScore += 0.2;
-        }
-
-        if ((double) features.get("urgency_words") > 0.5 && (double) features.get("free_mentions") > 0.5) {
-            boostScore += 0.25;
-        }
-
-        double totalScore = Math.min(1.0, baseScore + boostScore);
-
-        return 1.0 / (1.0 + Math.exp(-8.0 * (totalScore -0.4)));
+    public SpamClassifier.SpamPrediction predictWithML(String message) {
+        return spamClassifier.predict(message);
     }
 
     private int countSpamKeywords(String message) {

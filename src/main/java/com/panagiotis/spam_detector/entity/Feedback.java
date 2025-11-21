@@ -1,8 +1,6 @@
 package com.panagiotis.spam_detector.entity;
 
 import java.time.LocalDateTime;
-
-import ch.qos.logback.core.util.FixedDelay;
 import jakarta.persistence.*;
 
 /**

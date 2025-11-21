@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.panagiotis.spam_detector.entity.Feedback;
 import com.panagiotis.spam_detector.entity.SpamCheckHistory;
+import com.panagiotis.spam_detector.ml.SpamClassifier;
 import com.panagiotis.spam_detector.repository.SpamCheckHistoryRepository;
 import com.panagiotis.spam_detector.service.FeedbackService;
 import com.panagiotis.spam_detector.service.MlSpamService;
@@ -72,8 +73,9 @@ public class TestController {
         Map<String, Object> features = mlSpamService.extractFeatures(message);
 
         //ML predictions
-        double mlProbability = mlSpamService.predictSpamProbability(features);
-        boolean isSpam = mlProbability > 0.5;
+        SpamClassifier.SpamPrediction mlPrediction = mlSpamService.predictWithML(message);
+        double mlProbability = mlPrediction.getProbability();
+        boolean isSpam = mlPrediction.isSpam();
 
         boolean ruleBasedSpam = containsObviousSpamPatterns(message.toLowerCase());
         boolean finalDecision = isSpam || ruleBasedSpam;

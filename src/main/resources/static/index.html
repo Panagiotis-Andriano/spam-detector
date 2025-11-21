@@ -187,7 +187,7 @@
         <h1>Spam Detector</h1>
         <p>Ελέγξτε αν ένα μήνυμα είναι spam (Υποστηρίζει Ελληνικά & Αγγλικά)</p>
         
-        <textarea id="messageInput" placeholder="Γράψτε το μήνυμα εδώ...&#10;Π.χ.: Κέρδισε δωρεάν χρήματα τώρα!&#10;Π.χ.: Win free money now!!!">WIN NOW! !</textarea>
+        <textarea id="messageInput" placeholder="Γράψτε το μήνυμα εδώ...&#10;Π.χ.: Κέρδισε δωρεάν χρήματα τώρα!&#10;Π.χ.: Win free money now!!!"></textarea>
         
         <button onclick="checkSpam()">Ελέγχος για Spam</button>
         
@@ -307,6 +307,10 @@
          */
         async function checkSpam() {
             const message = document.getElementById('messageInput').value.trim();
+            console.log("FRONTEND DEBUG:");
+            console.log("Frontend - Textarea value:", message);
+            console.log("Frontend - Textarea content:", document.getElementById('messageInput').value);
+            console.log("   Full HTML:", document.getElementById('messageInput').outerHTML);
             const resultDiv = document.getElementById('result');
             const feedbackPanel = document.getElementById('feedbackPanel');
             

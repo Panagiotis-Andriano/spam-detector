@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.7</version>
+		<version>3.5.8</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.panagiotis</groupId>
@@ -79,6 +79,15 @@
     		<groupId>com.h2database</groupId>
    			<artifactId>h2</artifactId>
     		<scope>runtime</scope>
+		</dependency>
+		<dependency>
+    		<groupId>nz.ac.waikato.cms.weka</groupId>
+    		<artifactId>weka-stable</artifactId>
+    		<version>3.8.6</version>
+		</dependency>
+		<dependency>
+    		<groupId>com.fasterxml.jackson.dataformat</groupId>
+    		<artifactId>jackson-dataformat-csv</artifactId>
 		</dependency>
 	</dependencies>
 
