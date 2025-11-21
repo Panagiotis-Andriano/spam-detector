@@ -14,6 +14,8 @@
 -  **Αναλυτικά αποτελέσματα** με confidence scores
 -  **Feature extraction** (URLs, keywords, κεφαλαία, κλπ)
 -  **Ιστορικό ελέγχων** (με βάση δεδομένων H2)
+-  **Σύστημα Feedback** για βελτίωση του αλγορίθμου
+-  **Responsive design** για όλες τις συσκευές
 
 ## Τεχνολογίες
 
@@ -21,7 +23,7 @@
 - **Frontend:** HTML5, CSS3, JavaScript
 - **Database:** H2 (In-memory)
 - **Build Tool:** Maven
-- **Architecture:** MVC Pattern
+- **Architecture:** MVC Pattern, REST API
 
 ## Γρήγορη Εγκατάσταση
 
@@ -47,3 +49,32 @@ mvn spring-boot:run
 4. Πρόσβαση στην εφαρμογή
 
 http://localhost:8080
+
+##  Δομή Project
+
+spam-detector/
+├── src/main/java/com/panagiotis/spam_detector/
+│   ├── controller/          # REST Controllers
+│   ├── entity/             # JPA Entities
+│   ├── repository/         # Data Access Layer
+│   ├── service/           # Business Logic
+│   └── config/            # Configuration Classes
+├── src/main/resources/
+│   ├── static/            # Frontend Resources
+│   └── application.properties
+└── pom.xml
+
+## Χρήση
+
+- Εισαγωγή μηνύματος στο κύριο textarea
+- Πάτημα "Ελέγχος για Spam" για ανάλυση
+- Προβολή αποτελεσμάτων με πιθανότητα spam
+- Αξιολόγηση της ανάλυσης μέσω του feedback system
+
+## Στατιστικά
+
+- Η εφαρμογή παρέχει:
+- Ποσοστό ακρίβειας ανίχνευσης
+- Στατιστικά ανά γλώσσα
+- Ιστορικό διαφορών συστήματος-χρήστη
+- Real-time metrics
